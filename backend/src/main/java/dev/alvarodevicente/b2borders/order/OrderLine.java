@@ -31,10 +31,7 @@ public class OrderLine {
     @Column(nullable = false)
     private int quantity;
 
-    /**
-     * Price copied from the product when the line is created or edited. Once the order is confirmed the
-     * lines can no longer change, so later catalog price changes never alter a past order.
-     */
+    // price when the line was added, not the current catalog price
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
@@ -42,7 +39,6 @@ public class OrderLine {
     private BigDecimal lineTotal;
 
     protected OrderLine() {
-        // required by JPA
     }
 
     OrderLine(Order order, Product product, int quantity) {
@@ -51,7 +47,6 @@ public class OrderLine {
         changeQuantity(quantity);
     }
 
-    /** Package-private: only Order may change its lines, and only while it is a draft. */
     void changeQuantity(int newQuantity) {
         this.quantity = newQuantity;
         this.unitPrice = product.getUnitPrice();

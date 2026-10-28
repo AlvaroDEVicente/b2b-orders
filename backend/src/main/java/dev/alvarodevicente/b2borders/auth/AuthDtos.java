@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 
-/** Request and response bodies of the auth endpoints. Records: immutable, with equals/hashCode for free. */
 public final class AuthDtos {
 
     private AuthDtos() {

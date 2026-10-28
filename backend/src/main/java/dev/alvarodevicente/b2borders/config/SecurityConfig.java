@@ -35,13 +35,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/**
- * Stateless API secured with JWT:
- * 1. POST /api/auth/login checks the password and returns a signed token.
- * 2. The client sends it on every request: "Authorization: Bearer <token>".
- * 3. The resource server checks signature, expiry and issuer, and turns the "role" claim into ROLE_xxx.
- * 4. @PreAuthorize on controllers decides who can call each endpoint.
- */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -49,7 +42,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF protects cookie-based sessions. This API uses no cookies, so it does not apply.
+                // no cookies, so no CSRF
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -83,8 +76,6 @@ public class SecurityConfig {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey(properties))
                 .macAlgorithm(MacAlgorithm.HS256)
                 .build();
-        // Expiry is checked with the same Clock that issues tokens (tests can freeze it),
-        // and tokens issued by anyone else are rejected.
         JwtTimestampValidator timestamps = new JwtTimestampValidator();
         timestamps.setClock(clock);
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
@@ -117,17 +108,13 @@ public class SecurityConfig {
         return new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
     }
 
-    /**
-     * "Access Denied" is Spring's generic text for a failed @PreAuthorize. Our own AccessDeniedException
-     * messages (thrown by services) explain the reason, so those are passed through.
-     */
     private static String deniedDetail(String message) {
         return message == null || message.equals("Access Denied")
                 ? "Tu rol no permite realizar esta acción."
                 : message;
     }
 
-    /** Security errors happen before Spring MVC, so they are written here in the same problem+json format. */
+    // security errors happen before Spring MVC, so the problem+json is written by hand
     private static void writeProblem(HttpServletResponse response, int status, String title, String detail)
             throws IOException {
         response.setStatus(status);

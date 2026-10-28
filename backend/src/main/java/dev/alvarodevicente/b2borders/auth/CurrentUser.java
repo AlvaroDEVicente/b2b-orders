@@ -5,10 +5,6 @@ import dev.alvarodevicente.b2borders.user.Role;
 import java.util.Objects;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-/**
- * The logged-in user, rebuilt from the JWT on every request (no database lookup needed).
- * Controllers receive it as a method parameter thanks to CurrentUserArgumentResolver.
- */
 public record CurrentUser(Long id, String email, String fullName, Role role, Long customerId) {
 
     public static CurrentUser from(Jwt jwt) {
@@ -29,10 +25,6 @@ public record CurrentUser(Long id, String email, String fullName, Role role, Lon
         return role == Role.ADMIN || role == Role.SALES;
     }
 
-    /**
-     * Data-level authorization: roles say WHAT you can do, this says ON WHICH customers.
-     * ADMIN sees every customer, SALES only those assigned to them, CUSTOMER only their own company.
-     */
     public boolean canAccess(Customer customer) {
         return switch (role) {
             case ADMIN -> true;

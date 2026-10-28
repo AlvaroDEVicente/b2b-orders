@@ -13,10 +13,6 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-/**
- * JpaSpecificationExecutor allows building the WHERE clause piece by piece (see ProductSpecifications),
- * which is how optional search filters are usually done with Spring Data.
- */
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
     @Override
@@ -26,11 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @EntityGraph(attributePaths = "brand")
     List<Product> findByIdIn(Collection<Long> ids);
 
-    /**
-     * SELECT ... FOR UPDATE: locks these product rows until the transaction ends, so two orders that
-     * take stock from the same product wait for each other instead of failing.
-     * Ordered by id so two transactions always lock in the same order and cannot deadlock.
-     */
+    // ordered by id so two transactions always lock in the same order (no deadlocks)
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Product p where p.id in :ids order by p.id")
     List<Product> lockByIds(@Param("ids") Collection<Long> ids);

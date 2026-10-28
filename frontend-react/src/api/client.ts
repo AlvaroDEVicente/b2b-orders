@@ -1,6 +1,5 @@
 import type { Problem } from './types'
 
-/** An HTTP error from the API, with its RFC 9457 problem body when there is one. */
 export class ApiError extends Error {
   readonly status: number
   readonly problem: Problem | null
@@ -12,7 +11,6 @@ export class ApiError extends Error {
   }
 }
 
-/** One sentence the user can act on, whatever went wrong. */
 export function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     if (error.problem?.errors) {
@@ -29,16 +27,11 @@ export function errorMessage(error: unknown): string {
 let currentToken: string | null = null
 let onUnauthorized: () => void = () => {}
 
-/** AuthProvider calls this so every request carries the token and a 401 ends the session. */
 export function configureClient(token: string | null, unauthorizedHandler: () => void): void {
   currentToken = token
   onUnauthorized = unauthorizedHandler
 }
 
-/**
- * fetch wrapper used by every API call: JSON in and out, the bearer token, and errors turned
- * into ApiError so React Query can show them.
- */
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
   if (init.body !== undefined) {

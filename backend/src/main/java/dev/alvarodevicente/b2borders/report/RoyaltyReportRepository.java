@@ -9,10 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-/**
- * Read-only aggregate query. The database does the GROUP BY and SUM, so we never load every line
- * into memory to add them up in Java.
- */
 public interface RoyaltyReportRepository extends Repository<OrderLine, Long> {
 
     @Query("""

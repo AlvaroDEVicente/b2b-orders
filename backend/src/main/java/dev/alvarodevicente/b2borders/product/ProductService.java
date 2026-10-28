@@ -32,10 +32,6 @@ public class ProductService {
         this.licenseService = licenseService;
     }
 
-    /**
-     * Catalog search. A CUSTOMER only sees products of brands they hold a valid license for, so the
-     * catalog never offers something they will not be allowed to order.
-     */
     @Transactional(readOnly = true)
     public PageResponse<ProductResponse> search(Long brandId, String text, boolean includeInactive,
                                                 Pageable pageable, CurrentUser current) {
@@ -55,7 +51,6 @@ public class ProductService {
         return PageResponse.of(products.findAll(Specification.allOf(filters), pageable), ProductResponse::from);
     }
 
-    /** Same rule as the catalog: a CUSTOMER only sees active products of brands licensed to them. */
     @Transactional(readOnly = true)
     public ProductResponse findById(Long id, CurrentUser current) {
         Product product = getEntity(id);

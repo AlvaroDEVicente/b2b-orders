@@ -14,5 +14,4 @@ export const ROLE_LABELS: Record<Role, string> = {
   CUSTOMER: 'Cliente',
 };
 
-/** The normal path of an order, in order. CANCELLED is not on it: it is a way out. */
 export const LIFE_CYCLE: OrderStatus[] = ['DRAFT', 'CONFIRMED', 'SHIPPED', 'DELIVERED'];

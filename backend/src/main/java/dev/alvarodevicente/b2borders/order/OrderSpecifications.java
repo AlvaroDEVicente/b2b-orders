@@ -16,7 +16,7 @@ final class OrderSpecifications {
         return (root, query, cb) -> cb.equal(root.get("customer").get("id"), customerId);
     }
 
-    /** The same visibility rule as CurrentUser.canAccess, written as a SQL condition for lists. */
+    // same rule as CurrentUser.canAccess, as a WHERE clause for lists
     static Specification<Order> visibleTo(CurrentUser current) {
         return switch (current.role()) {
             case ADMIN -> (root, query, cb) -> cb.conjunction(); // always true

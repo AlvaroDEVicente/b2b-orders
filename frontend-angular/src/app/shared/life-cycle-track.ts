@@ -2,10 +2,6 @@ import { Component, computed, input } from '@angular/core';
 import { OrderStatus } from '../core/api/models';
 import { LIFE_CYCLE, STATUS_LABELS } from './labels';
 
-/**
- * The order's position on its life cycle, drawn like the stub of a delivery note:
- * every step up to the current one is filled, the rest are outlined.
- */
 @Component({
   selector: 'app-life-cycle-track',
   template: `

@@ -13,7 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 
-/** Permission for a customer to distribute one brand between two dates (both inclusive). */
 @Entity
 @Table(name = "license")
 public class License {
@@ -37,7 +36,6 @@ public class License {
     private LocalDate endDate;
 
     protected License() {
-        // required by JPA
     }
 
     public License(Customer customer, Brand brand, LocalDate startDate, LocalDate endDate) {

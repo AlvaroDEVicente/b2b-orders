@@ -27,10 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Rich domain model: the status rules live here, so no service can move an order to an invalid
- * status by mistake. The service only orchestrates (loads data, checks permissions and licenses).
- */
 @Entity
 @Table(name = "orders") // "order" is a reserved word in SQL
 public class Order {
@@ -51,7 +47,6 @@ public class Order {
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.DRAFT;
 
-    /** The order owns its lines: saving the order saves them, removing one from the list deletes it. */
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id")
     private List<OrderLine> lines = new ArrayList<>();
@@ -72,7 +67,6 @@ public class Order {
     private long version;
 
     protected Order() {
-        // required by JPA
     }
 
     public Order(Customer customer, AppUser createdBy, Instant now) {
@@ -82,13 +76,8 @@ public class Order {
         this.updatedAt = now;
     }
 
-    /**
-     * Sets the order lines to exactly these products and quantities. Only allowed while the order is a draft.
-     *
-     * Existing lines are updated in place instead of deleted and re-created: Hibernate runs INSERTs before
-     * DELETEs when it flushes, so re-creating a line for the same product would break the
-     * UNIQUE (order_id, product_id) constraint.
-     */
+    // Updates existing lines instead of delete + insert: Hibernate flushes INSERTs before DELETEs,
+    // so re-adding the same product would break UNIQUE (order_id, product_id)
     public void replaceLines(Map<Product, Integer> quantities, Instant now) {
         requireStatus(OrderStatus.DRAFT, "modificar las líneas");
         Map<Long, Integer> byProductId = new LinkedHashMap<>();
@@ -105,7 +94,6 @@ public class Order {
         updatedAt = now;
     }
 
-    /** Takes the stock of every line. All lines are checked first, so if one product is short nothing is taken. */
     public void confirm(Instant now) {
         if (!status.canTransitionTo(OrderStatus.CONFIRMED)) {
             throw new ConflictException("Un pedido en estado " + status + " no puede pasar a CONFIRMED");

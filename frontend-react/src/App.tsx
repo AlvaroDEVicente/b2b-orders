@@ -6,7 +6,6 @@ import { LoginPage } from './pages/LoginPage'
 import { OrderPage } from './pages/OrderPage'
 import { OrdersPage } from './pages/OrdersPage'
 
-/** Routes of the distributors' portal. Everything except /login needs a session (see Layout). */
 export function App() {
   return (
     <Routes>

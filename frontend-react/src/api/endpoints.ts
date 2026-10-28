@@ -26,7 +26,6 @@ export function fetchOrders(filters: { status: OrderStatus | null; page: number 
 
 export const fetchOrder = (id: number) => api<Order>(`/api/orders/${id}`)
 
-/** The API takes the customer from the token for CUSTOMER users, so no customerId is sent. */
 export const createOrder = (lines: LineRequest[]) =>
   api<Order>('/api/orders', { method: 'POST', body: JSON.stringify({ lines }) })
 

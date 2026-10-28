@@ -12,15 +12,6 @@ interface Session {
   user: User;
 }
 
-/**
- * Holds the logged-in session in a signal. Components read `user()` or `role()` and Angular
- * re-renders them automatically when the session changes (login, logout).
- *
- * The session is kept in localStorage so a page reload does not log the user out. The trade-off:
- * a script injected into the page (XSS) could read it. An httpOnly cookie would avoid that but needs
- * CSRF protection on the API; for this project the simpler option was chosen and Angular's template
- * escaping is the XSS defence.
- */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -70,14 +61,12 @@ function readStoredSession(): Session | null {
   }
   try {
     const session = JSON.parse(raw) as Session;
-    // An expired token would only produce 401s: start logged out instead.
     return new Date(session.expiresAt).getTime() > Date.now() ? session : null;
   } catch {
     return null;
   }
 }
 
-/** localStorage can throw (private mode, blocked storage). The app must still work without it. */
 function safeStorage<T>(action: () => T): T | null {
   try {
     return action();

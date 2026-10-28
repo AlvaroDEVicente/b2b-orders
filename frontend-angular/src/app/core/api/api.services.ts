@@ -15,12 +15,6 @@ import {
   RoyaltyReport,
 } from './models';
 
-/**
- * Thin wrappers around the REST endpoints. Components never build URLs themselves, so if an
- * endpoint changes there is one place to fix. All URLs are relative ("/api/..."): in development the
- * Angular dev server proxies them to the API, in production nginx does.
- */
-
 @Injectable({ providedIn: 'root' })
 export class ProductApi {
   private readonly http = inject(HttpClient);

@@ -19,7 +19,6 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Plain unit tests of the Order entity: no Spring, no database, run in milliseconds. */
 class OrderTest {
 
     private static final Instant NOW = Instant.parse("2026-10-28T10:00:00Z");

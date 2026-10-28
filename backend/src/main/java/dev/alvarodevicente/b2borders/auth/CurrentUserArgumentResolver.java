@@ -10,7 +10,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-/** Lets any controller method declare a CurrentUser parameter and receive the logged-in user. */
 public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override

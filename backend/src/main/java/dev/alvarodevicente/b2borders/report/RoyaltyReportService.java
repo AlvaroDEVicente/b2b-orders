@@ -12,11 +12,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Royalties owed to each brand for a period: net sales of the brand's products in confirmed, shipped
- * or delivered orders, multiplied by the brand's royalty rate. An order counts in the period in which
- * it was confirmed.
- */
 @Service
 public class RoyaltyReportService {
 
@@ -35,7 +30,7 @@ public class RoyaltyReportService {
         if (to.isBefore(from)) {
             throw new BusinessRuleException("La fecha final no puede ser anterior a la inicial");
         }
-        // Both dates are inclusive and in Spanish time: [from 00:00, day after "to" 00:00).
+        // both dates inclusive, in Spanish time
         Instant start = from.atStartOfDay(AppConfig.BUSINESS_ZONE).toInstant();
         Instant end = to.plusDays(1).atStartOfDay(AppConfig.BUSINESS_ZONE).toInstant();
 
@@ -48,7 +43,6 @@ public class RoyaltyReportService {
         return new RoyaltyReport(from, to, rows, totalSales, totalRoyalty);
     }
 
-    /** Money is always BigDecimal: 0.1 + 0.2 is exactly 0.3 here, unlike with double. */
     static RoyaltyReport.Row toRow(RoyaltyAggregate aggregate) {
         BigDecimal royalty = aggregate.netSales()
                 .multiply(aggregate.royaltyRate())

@@ -31,7 +31,6 @@ public class AppUser {
     @Column(nullable = false)
     private Role role;
 
-    /** Only set for CUSTOMER users. Kept as an id to avoid loading the customer on every login. */
     @Column(name = "customer_id")
     private Long customerId;
 
@@ -42,7 +41,6 @@ public class AppUser {
     private Instant createdAt;
 
     protected AppUser() {
-        // required by JPA
     }
 
     public AppUser(String email, String passwordHash, String fullName, Role role, Long customerId) {

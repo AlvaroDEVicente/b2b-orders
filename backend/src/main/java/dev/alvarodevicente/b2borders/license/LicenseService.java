@@ -59,7 +59,6 @@ public class LicenseService {
         licenses.delete(license);
     }
 
-    /** Brands this customer may sell today. */
     @Transactional(readOnly = true)
     public Set<Long> validBrandIdsToday(Long customerId) {
         return licenses.findValidBrandIds(customerId, LocalDate.now(clock));

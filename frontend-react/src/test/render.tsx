@@ -5,7 +5,6 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { AuthProvider } from '../auth/AuthContext'
 import { CartProvider } from '../cart/CartContext'
 
-/** Renders a page with every provider the app has, at the given URL. */
 export function renderPage(element: ReactElement, { path = '/', url = '/' } = {}) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
@@ -24,7 +23,6 @@ export function renderPage(element: ReactElement, { path = '/', url = '/' } = {}
   )
 }
 
-/** Puts a valid session in storage, as if the user had logged in before. */
 export function loginAsCustomer() {
   localStorage.setItem(
     'b2b-orders.portal.session',

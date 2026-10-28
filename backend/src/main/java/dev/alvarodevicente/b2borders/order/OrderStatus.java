@@ -1,14 +1,5 @@
 package dev.alvarodevicente.b2borders.order;
 
-/**
- * Order life cycle:
- *
- *   DRAFT ──confirm──▶ CONFIRMED ──ship──▶ SHIPPED ──deliver──▶ DELIVERED
- *     │                    │
- *     └──────cancel────────┴──────────▶ CANCELLED
- *
- * DELIVERED and CANCELLED are final.
- */
 public enum OrderStatus {
     DRAFT,
     CONFIRMED,
@@ -25,7 +16,6 @@ public enum OrderStatus {
         };
     }
 
-    /** Statuses whose lines count as a sale (used by the royalty report). */
     public boolean isSale() {
         return this == CONFIRMED || this == SHIPPED || this == DELIVERED;
     }

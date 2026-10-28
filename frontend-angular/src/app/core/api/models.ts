@@ -1,5 +1,3 @@
-// TypeScript mirror of the API's JSON. Keeping it in one file makes a contract change easy to spot.
-
 export type Role = 'ADMIN' | 'SALES' | 'CUSTOMER';
 
 export type OrderStatus = 'DRAFT' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
@@ -132,7 +130,6 @@ export interface RoyaltyReport {
   totalRoyalty: number;
 }
 
-/** RFC 9457 error body returned by the API. */
 export interface Problem {
   title?: string;
   status?: number;

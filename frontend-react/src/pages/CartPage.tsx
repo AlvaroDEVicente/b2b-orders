@@ -11,10 +11,6 @@ export function CartPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  /**
-   * One mutation, two API calls: create the draft and, if asked, confirm it straight away.
-   * If the confirmation fails (no stock, say) the draft still exists and the user lands on it.
-   */
   const placeOrder = useMutation({
     mutationFn: async (confirm: boolean) => {
       const draft = await createOrder(
@@ -29,7 +25,6 @@ export function CartPage() {
     },
     onSuccess: (order) => {
       dispatch({ type: 'clear' })
-      // The orders list is now out of date: mark it so React Query fetches it again.
       void queryClient.invalidateQueries({ queryKey: ['orders'] })
       void queryClient.invalidateQueries({ queryKey: ['products'] })
       navigate(`/pedidos/${order.id}`)

@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
-/** Issues signed JWTs. Validation is done by Spring Security's resource server (see SecurityConfig). */
 @Service
 public class TokenService {
 

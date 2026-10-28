@@ -14,16 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * Base class for integration tests: the whole application (security, controllers, services, JPA)
- * against a real PostgreSQL with the demo data loaded.
- *
- * Time is frozen at 28 October 2026 so date rules (license validity, token expiry, report periods)
- * give the same result whenever the tests run.
- *
- * Tests do not roll back: they create their own orders and check relative changes, so they do not
- * depend on each other. Rolling back would also hide errors that only appear when Hibernate flushes.
- */
+// Real PostgreSQL with the demo data and a frozen clock. No rollback between tests on purpose:
+// it would hide errors that only show up when Hibernate flushes.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles({"demo", "local"})

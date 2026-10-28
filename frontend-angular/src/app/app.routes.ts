@@ -2,10 +2,6 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard, roleGuard } from './core/auth/auth.guards';
 import { Shell } from './layout/shell';
 
-/**
- * Each feature page is lazy-loaded (loadComponent): its code is only downloaded the first time the
- * user opens it, which keeps the initial download small.
- */
 export const routes: Routes = [
   {
     path: 'login',

@@ -3,11 +3,6 @@ import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
-/**
- * Runs on every HTTP request:
- * - adds "Authorization: Bearer <token>" to calls to our API;
- * - if the API answers 401 (token expired or invalid), ends the session and goes to the login page.
- */
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthService);
   const token = auth.token();

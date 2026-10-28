@@ -17,8 +17,6 @@ export function CatalogPage() {
 
   const brands = useQuery({ queryKey: ['brands'], queryFn: fetchBrands, staleTime: 5 * 60_000 })
 
-  // The query key holds every filter: when one changes React Query fetches (and caches) that page.
-  // keepPreviousData leaves the old rows on screen while the new ones load, so nothing flickers.
   const products = useQuery({
     queryKey: ['products', { q, brandId, page }],
     queryFn: () => fetchProducts({ q, brandId, page }),

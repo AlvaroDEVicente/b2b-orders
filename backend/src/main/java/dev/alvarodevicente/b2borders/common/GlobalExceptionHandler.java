@@ -21,13 +21,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-/**
- * Turns exceptions into RFC 9457 "problem details" so every error has the same JSON shape:
- * {"type", "title", "status", "detail", "instance"} plus extra fields when useful.
- *
- * Extending ResponseEntityExceptionHandler gives the same format to the errors Spring raises itself
- * (malformed JSON, wrong HTTP method, missing parameter...).
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -65,18 +58,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problem(HttpStatus.UNAUTHORIZED, "Credenciales no válidas", ex.getMessage());
     }
 
-    /** ?sort=foo with a field that does not exist: the client's mistake, not a server error. */
     @ExceptionHandler(PropertyReferenceException.class)
     ProblemDetail handleBadSort(PropertyReferenceException ex) {
         return problem(HttpStatus.BAD_REQUEST, "Parámetro no válido",
                 "No se puede ordenar por '" + ex.getPropertyName() + "'.");
     }
 
-    /**
-     * Anything unexpected: logged in full on the server, but the client only gets a generic message.
-     * Stack traces and SQL errors can reveal internals and must never reach the response.
-     * Security exceptions are re-thrown so Spring Security still answers 401/403.
-     */
+    // log the details, but never send stack traces or SQL to the client
     @ExceptionHandler(Exception.class)
     ProblemDetail handleUnexpected(Exception ex) throws Exception {
         if (ex instanceof AccessDeniedException || ex instanceof AuthenticationException) {
@@ -87,7 +75,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 "Ha ocurrido un error inesperado. Inténtalo de nuevo más tarde.");
     }
 
-    /** Bean Validation errors (@Valid on a request body): 400 with one message per field. */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {

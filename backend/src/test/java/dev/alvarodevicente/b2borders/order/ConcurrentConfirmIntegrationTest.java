@@ -17,10 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-/**
- * Several distributors confirm orders for the same product at the same moment. With enough stock
- * for all of them, every confirmation must succeed and the stock must drop by exactly the total.
- */
 class ConcurrentConfirmIntegrationTest extends IntegrationTest {
 
     private static final int ORDERS = 6;

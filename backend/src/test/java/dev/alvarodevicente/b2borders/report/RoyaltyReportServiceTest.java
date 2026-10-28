@@ -26,7 +26,6 @@ class RoyaltyReportServiceTest {
 
     @Test
     void roundsTheRoyaltyHalfUpToCents() {
-        // 1141.00 * 12.00 % = 136.92 exactly; 970.05 * 8.50 % = 82.45425 -> 82.45
         when(repository.aggregateByBrand(any(), any(), any())).thenReturn(List.of(
                 new RoyaltyAggregate(1L, "Kraken Sports", new BigDecimal("12.00"), 110L, new BigDecimal("1141.00")),
                 new RoyaltyAggregate(2L, "Aurora Studio", new BigDecimal("8.50"), 3L, new BigDecimal("970.05"))));

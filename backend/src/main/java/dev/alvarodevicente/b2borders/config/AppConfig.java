@@ -15,13 +15,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableConfigurationProperties(JwtProperties.class)
 public class AppConfig implements WebMvcConfigurer {
 
-    /** Dates such as "is this license valid today?" are decided in Spanish time. */
     public static final ZoneId BUSINESS_ZONE = ZoneId.of("Europe/Madrid");
 
-    /**
-     * Code asks this Clock for "now" instead of calling Instant.now() directly, so tests can freeze time
-     * and check date rules (expired licenses, report periods) deterministically.
-     */
+    // inject Clock instead of calling now() so tests can freeze time
     @Bean
     Clock clock() {
         return Clock.system(BUSINESS_ZONE);

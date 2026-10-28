@@ -25,7 +25,6 @@ public class CustomerService {
         this.users = users;
     }
 
-    /** ADMIN gets every customer, SALES only the ones assigned to them. */
     @Transactional(readOnly = true)
     public List<CustomerResponse> findVisible(CurrentUser current) {
         List<Customer> result = current.isAdmin()
@@ -63,10 +62,7 @@ public class CustomerService {
         return CustomerResponse.from(customer);
     }
 
-    /**
-     * Loads a customer the current user is allowed to see. A customer that exists but belongs to someone
-     * else answers 404, not 403: the API does not even confirm that it exists.
-     */
+    // someone else's customer returns 404, not 403, so we don't reveal that it exists
     @Transactional(readOnly = true)
     public Customer getAccessible(Long id, CurrentUser current) {
         return customers.findById(id)

@@ -41,10 +41,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
-/**
- * Unit tests of OrderService with Mockito: the repositories and collaborator services are fakes,
- * so each test controls exactly what "the database" returns and checks only the service's own logic.
- */
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
@@ -90,7 +86,6 @@ class OrderServiceTest {
         when(licenseService.validBrandIdsToday(1L)).thenReturn(Set.of(1L));
         when(users.getReferenceById(4L)).thenReturn(user(4, Role.CUSTOMER, 1L));
 
-        // The request tries to order for customer 99: it must be ignored.
         var response = service.createDraft(new CreateOrderRequest(99L, List.of(line(10, 5))), customerUser);
 
         verify(customerService).getAccessible(1L, customerUser);

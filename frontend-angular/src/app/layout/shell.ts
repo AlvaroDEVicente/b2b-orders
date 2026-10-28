@@ -17,7 +17,6 @@ const NAV: NavItem[] = [
   { path: '/royalties', label: 'Royalties', roles: ['ADMIN'] },
 ];
 
-/** Frame of every logged-in page: navigation for the user's role, who is logged in, and the page. */
 @Component({
   selector: 'app-shell',
   imports: [RouterOutlet, RouterLink, RouterLinkActive],

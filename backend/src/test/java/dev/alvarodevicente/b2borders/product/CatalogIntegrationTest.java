@@ -41,7 +41,6 @@ class CatalogIntegrationTest extends IntegrationTest {
 
     @Test
     void customersCannotOpenProductsOutsideTheirLicenses() throws Exception {
-        // Product 7 is Pixel Pals, whose license for this customer expired in 2025.
         mockMvc.perform(get("/api/products/7")
                         .header(HttpHeaders.AUTHORIZATION, bearer(tokenFor(CUSTOMER_CANTABRICO))))
                 .andExpect(status().isNotFound());

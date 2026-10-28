@@ -8,10 +8,6 @@ import dev.alvarodevicente.b2borders.user.Role;
 import java.math.BigDecimal;
 import org.springframework.test.util.ReflectionTestUtils;
 
-/**
- * Builds entities for unit tests. Ids are normally set by the database, so here they are set by
- * reflection (tests only).
- */
 public final class TestData {
 
     private TestData() {

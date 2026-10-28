@@ -8,11 +8,6 @@ import dev.alvarodevicente.b2borders.support.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 
-/**
- * Runs the real SQL aggregation on the demo orders. Q3 2026 contains orders 1, 2 and 6
- * (order 3 was confirmed in October, order 5 was never confirmed). Orders created by other tests
- * are confirmed on the frozen date (October 2026), so they never fall in this period.
- */
 class RoyaltyReportIntegrationTest extends IntegrationTest {
 
     @Test

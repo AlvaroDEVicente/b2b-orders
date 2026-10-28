@@ -15,7 +15,6 @@ interface ActionButton {
   confirmText?: string;
 }
 
-/** Buttons for each action the API says is available. The API decides; the screen only shows. */
 const BUTTONS: Partial<Record<OrderAction, ActionButton>> = {
   CONFIRM: { action: 'confirm', label: 'Confirmar pedido', style: 'primary' },
   SHIP: { action: 'ship', label: 'Marcar como enviado', style: 'primary' },
@@ -162,7 +161,6 @@ export class OrderDetail {
   private readonly api = inject(OrderApi);
   protected readonly auth = inject(AuthService);
 
-  /** Filled from the route (/orders/:id) thanks to withComponentInputBinding. */
   readonly id = input.required<string>();
 
   protected readonly order = signal<Order | null>(null);
@@ -179,7 +177,6 @@ export class OrderDetail {
   );
 
   constructor() {
-    // Reload whenever the id in the URL changes.
     effect(() => {
       const id = Number(this.id());
       this.order.set(null);

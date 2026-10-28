@@ -29,7 +29,6 @@ const license = (brandId: number): License => ({
   validToday: true,
 });
 
-// Exposes the component's protected members to the test.
 interface FormInternals {
   form: { controls: { customerId: { setValue(v: number | null): void } } };
   lines: {

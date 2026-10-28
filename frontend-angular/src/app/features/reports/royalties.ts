@@ -6,7 +6,6 @@ import { RoyaltyReport } from '../../core/api/models';
 import { errorMessage } from '../../core/api/problem';
 import { dateRangeValidator } from '../../shared/validators';
 
-/** Current quarter, as ISO dates: the period people usually ask for first. */
 function currentQuarter(today = new Date()): { from: string; to: string } {
   const year = today.getFullYear();
   const firstMonth = Math.floor(today.getMonth() / 3) * 3;

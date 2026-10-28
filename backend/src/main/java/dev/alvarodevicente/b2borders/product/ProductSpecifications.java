@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Locale;
 import org.springframework.data.jpa.domain.Specification;
 
-/** Reusable WHERE conditions for products. Each one is combined only when its filter is present. */
 final class ProductSpecifications {
 
     private ProductSpecifications() {

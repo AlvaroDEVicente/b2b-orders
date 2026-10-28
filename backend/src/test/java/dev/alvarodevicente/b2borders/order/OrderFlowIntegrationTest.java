@@ -18,11 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-/** The order life cycle through the real API, database included. */
 class OrderFlowIntegrationTest extends IntegrationTest {
-
-    // Demo data: product 1 = Kraken case, product 4 = Aurora case, product 7 = Pixel Pals case,
-    // product 12 = out of stock. Customer 1 has Kraken and Aurora licenses; Pixel Pals expired in 2025.
 
     @Test
     void fullLifeCycleTakesAndReturnsStock() throws Exception {
@@ -94,7 +90,6 @@ class OrderFlowIntegrationTest extends IntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[*].customerId", everyItem(is(1))));
 
-        // Order 4 belongs to customer 3: it answers as if it did not exist.
         mockMvc.perform(get("/api/orders/4").header(HttpHeaders.AUTHORIZATION, bearer(cantabrico)))
                 .andExpect(status().isNotFound());
     }
@@ -106,7 +101,6 @@ class OrderFlowIntegrationTest extends IntegrationTest {
                 .andExpect(jsonPath("$[*].name",
                         containsInAnyOrder("TecnoVera Distribución S.L.", "Plaza Mayor Phone S.L.")));
 
-        // Marcos cannot create orders for Irene's customer 3.
         mockMvc.perform(post("/api/orders")
                         .header(HttpHeaders.AUTHORIZATION, bearer(tokenFor(SALES_MARCOS)))
                         .contentType(MediaType.APPLICATION_JSON)

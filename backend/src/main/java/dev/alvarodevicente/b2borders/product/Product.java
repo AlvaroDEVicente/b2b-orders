@@ -41,16 +41,11 @@ public class Product {
     @Column(nullable = false)
     private boolean active = true;
 
-    /**
-     * Optimistic locking: Hibernate adds "WHERE version = ?" to every UPDATE. If two orders take stock
-     * from the same product at the same time, the second update finds a different version and fails
-     * instead of silently overwriting the first one.
-     */
+    // optimistic lock for edits; stock changes use a pessimistic lock (see OrderService)
     @Version
     private long version;
 
     protected Product() {
-        // required by JPA
     }
 
     public Product(String sku, String name, Brand brand, BigDecimal unitPrice, int stock) {

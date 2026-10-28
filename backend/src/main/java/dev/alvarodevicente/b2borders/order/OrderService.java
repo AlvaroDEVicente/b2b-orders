@@ -32,10 +32,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Orchestrates the order use cases: load data, check who may do what, check licenses, then delegate
- * the state change to the Order entity. Every public method is one transaction: all or nothing.
- */
 @Service
 public class OrderService {
 
@@ -103,8 +99,7 @@ public class OrderService {
     public OrderResponse confirm(Long id, CurrentUser current) {
         lockProductsOf(id);
         Order order = getAccessible(id, current);
-        // Things may have changed since the draft was created: the customer was deactivated,
-        // a product withdrawn or a license expired.
+        // the draft may be days old: check everything again
         if (!order.getCustomer().isActive()) {
             throw new BusinessRuleException("El cliente " + order.getCustomer().getName() + " está dado de baja");
         }
@@ -142,7 +137,6 @@ public class OrderService {
         return toResponse(order, current);
     }
 
-    /** Same rules the endpoints enforce, computed for the client so it can show only valid buttons. */
     static Set<OrderAction> availableActions(Order order, CurrentUser current) {
         Set<OrderAction> actions = EnumSet.noneOf(OrderAction.class);
         switch (order.getStatus()) {
@@ -158,18 +152,12 @@ public class OrderService {
                 }
             }
             case DELIVERED, CANCELLED -> {
-                // final states: nothing to do
             }
         }
         return actions;
     }
 
-    /**
-     * Confirming and cancelling change stock. The products are locked (SELECT ... FOR UPDATE) BEFORE the
-     * order is loaded, so the stock read afterwards is the latest committed value and nobody else can
-     * change it until this transaction ends. Concurrent orders for the same product wait in line
-     * instead of failing with a version conflict.
-     */
+    // Lock the stock rows before reading them: concurrent confirmations wait in line instead of failing
     private void lockProductsOf(Long orderId) {
         List<Long> productIds = orders.findProductIds(orderId);
         if (!productIds.isEmpty()) {
@@ -183,7 +171,6 @@ public class OrderService {
                 .orElseThrow(() -> new NotFoundException("Pedido", id));
     }
 
-    /** Turns the requested lines into products + quantities, validating everything first. */
     private Map<Product, Integer> resolveLines(Customer customer, List<OrderLineRequest> requested) {
         Set<Long> seen = new HashSet<>();
         for (OrderLineRequest line : requested) {

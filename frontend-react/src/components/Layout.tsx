@@ -2,7 +2,6 @@ import { NavLink, Navigate, Outlet } from 'react-router'
 import { useAuth } from '../auth/AuthContext'
 import { useCart } from '../cart/CartContext'
 
-/** Frame of every page after login. Without a session it sends the user to /login. */
 export function Layout() {
   const { user, logout } = useAuth()
   const { units } = useCart()

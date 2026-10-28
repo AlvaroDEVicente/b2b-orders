@@ -14,7 +14,6 @@ export function OrderPage() {
   const queryClient = useQueryClient()
   const order = useQuery({ queryKey: ['order', id], queryFn: () => fetchOrder(id) })
 
-  /** After a status change, put the fresh order in the cache and refresh the lists. */
   const onChanged = (updated: Order) => {
     queryClient.setQueryData(['order', id], updated)
     void queryClient.invalidateQueries({ queryKey: ['orders'] })

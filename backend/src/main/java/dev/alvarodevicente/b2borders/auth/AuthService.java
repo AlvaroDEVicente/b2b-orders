@@ -15,10 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AuthService {
 
-    /**
-     * Hash of a random password. When the email does not exist we still compare against it, so a
-     * wrong email takes as long as a wrong password and nobody can find valid emails by timing.
-     */
+    // checked when the email doesn't exist, so a wrong email takes as long as a wrong password
     private static final String DUMMY_HASH = "$2a$10$d.BaH7kR7r8q0ez9in5ZrePorr0NHqx37N5e51LxVQnMGckTkIMOi";
 
     private final AppUserRepository users;

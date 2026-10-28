@@ -154,11 +154,6 @@ export class OrderList {
     label: STATUS_LABELS[value],
   }));
 
-  /**
-   * Signals -> RxJS -> signal: every time the filter or the page changes, switchMap cancels the
-   * previous request (if still running) and starts a new one, so a slow old answer never
-   * overwrites a newer one.
-   */
   protected readonly state = toSignal(
     combineLatest([toObservable(this.status), toObservable(this.pageIndex)]).pipe(
       switchMap(([status, page]) =>

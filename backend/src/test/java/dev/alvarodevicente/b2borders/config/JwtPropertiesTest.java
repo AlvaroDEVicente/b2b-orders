@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
-/** Without a strong secret the API must refuse to start rather than sign tokens anyone could forge. */
 class JwtPropertiesTest {
 
     @Test

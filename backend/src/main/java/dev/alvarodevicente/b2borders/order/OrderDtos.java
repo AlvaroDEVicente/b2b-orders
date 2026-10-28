@@ -15,7 +15,6 @@ public final class OrderDtos {
     private OrderDtos() {
     }
 
-    /** customerId is ignored for CUSTOMER users: they always order for their own company. */
     public record CreateOrderRequest(
             Long customerId,
             @NotEmpty(message = "El pedido necesita al menos una línea") @Valid List<OrderLineRequest> lines) {

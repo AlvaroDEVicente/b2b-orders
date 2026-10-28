@@ -24,10 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Status changes are separate POST endpoints (/confirm, /ship...) instead of "PUT status=SHIPPED":
- * each one is a business action with its own rules and permissions, and reads clearly in the API docs.
- */
 @RestController
 @RequestMapping("/api/orders")
 @Tag(name = "Pedidos")

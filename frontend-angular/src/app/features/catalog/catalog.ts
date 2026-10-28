@@ -154,13 +154,7 @@ export class Catalog {
 
   protected readonly brands = toSignal(inject(BrandApi).findAll(), { initialValue: [] });
 
-  /**
-   * The classic RxJS search box:
-   * - debounceTime: wait until the user stops typing for 300 ms instead of one request per key;
-   * - distinctUntilChanged: no request if the text did not really change;
-   * - switchMap: if a new search starts, the previous request is cancelled.
-   * Each new filter starts again at page 0; the pager then emits the pages the user asks for.
-   */
+  // debounce + switchMap: one request when typing stops, older requests get cancelled
   protected readonly result = toSignal(
     combineLatest([
       this.text.valueChanges.pipe(

@@ -1,5 +1,3 @@
-// Shapes of the API's JSON, the subset this portal uses.
-
 export type Role = 'ADMIN' | 'SALES' | 'CUSTOMER'
 export type OrderStatus = 'DRAFT' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
 export type OrderAction = 'EDIT_LINES' | 'CONFIRM' | 'CANCEL' | 'SHIP' | 'DELIVER'

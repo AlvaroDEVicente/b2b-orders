@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** A distributor company that buys licensed products. */
 @Entity
 @Table(name = "customer")
 public class Customer {
@@ -23,7 +22,6 @@ public class Customer {
     @Column(nullable = false)
     private String name;
 
-    /** Spanish CIF/NIF. */
     @Column(name = "tax_id", nullable = false, unique = true)
     private String taxId;
 
@@ -35,7 +33,6 @@ public class Customer {
     @Column(nullable = false)
     private String city;
 
-    /** LAZY: the sales rep is only loaded when the code actually reads it. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sales_rep_id")
     private AppUser salesRep;
@@ -44,7 +41,6 @@ public class Customer {
     private boolean active = true;
 
     protected Customer() {
-        // required by JPA
     }
 
     public Customer(String name, String taxId, String email, String phone, String city, AppUser salesRep) {

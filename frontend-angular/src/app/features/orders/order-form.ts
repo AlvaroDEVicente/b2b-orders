@@ -24,7 +24,6 @@ type LineGroup = FormGroup<{
   quantity: FormControl<number>;
 }>;
 
-/** Form-level rule: the same product cannot appear on two lines (the API rejects it too). */
 export const noDuplicateProducts: ValidatorFn = (
   control: AbstractControl,
 ): ValidationErrors | null => {
@@ -34,7 +33,6 @@ export const noDuplicateProducts: ValidatorFn = (
   return new Set(ids).size === ids.length ? null : { duplicateProduct: true };
 };
 
-/** Sum of quantity x price for the lines whose product is known. Exported for unit tests. */
 export function orderTotal(
   lines: { productId: number | null; quantity: number }[],
   prices: Map<number, number>,
@@ -43,7 +41,7 @@ export function orderTotal(
     const price = line.productId === null ? undefined : prices.get(line.productId);
     return price === undefined ? sum : sum + Math.round(price * 100) * (line.quantity || 0);
   }, 0);
-  // Work in whole cents: 0.1 + 0.2 in floating point is 0.30000000000000004.
+  // cents, to avoid 0.1 + 0.2 = 0.30000000000000004
   return cents / 100;
 }
 
@@ -223,9 +221,7 @@ export class OrderForm implements OnInit {
   private readonly customerApi = inject(CustomerApi);
   protected readonly auth = inject(AuthService);
 
-  /** Route param in /orders/:id/edit; undefined when creating. */
   readonly id = input<string>();
-  /** Query param (?productId=4) when coming from the catalog. */
   readonly productId = input<string>();
 
   protected readonly form = this.fb.group({
@@ -247,10 +243,6 @@ export class OrderForm implements OnInit {
   private licenseRequest: Subscription | null = null;
   private pendingPreset: number | null = null;
 
-  /**
-   * Products the chosen customer may order. A CUSTOMER already gets a filtered catalog from the API.
-   * For staff nothing is offered until the chosen customer's licenses have arrived.
-   */
   protected readonly products = computed(() => {
     const products = this.allProducts();
     if (!this.auth.isStaff()) {
@@ -305,7 +297,6 @@ export class OrderForm implements OnInit {
         } else {
           const preset = this.productId() ? Number(this.productId()) : null;
           if (this.auth.isStaff()) {
-            // Staff still have to choose the customer: apply the preset once their licenses are known.
             this.pendingPreset = preset;
             this.addLine();
           } else {
@@ -397,11 +388,8 @@ export class OrderForm implements OnInit {
     });
   }
 
-  /**
-   * Loads the licenses of the chosen customer. A previous request still in flight is cancelled
-   * (the same idea as switchMap), so a slow answer for the old customer can never win.
-   */
   private loadLicenses(customerId: number): void {
+    // cancel the previous customer's request so a slow response can't win
     this.licenseRequest?.unsubscribe();
     this.licenseRequest = this.customerApi.licenses(customerId).subscribe({
       next: (licenses) => {
@@ -413,7 +401,6 @@ export class OrderForm implements OnInit {
     });
   }
 
-  /** After a customer change, empty the lines whose product that customer cannot order. */
   private keepOnlyLicensedProducts(): void {
     const allowed = new Set(this.products().map((p) => p.id));
     let removed = 0;

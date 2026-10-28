@@ -15,7 +15,6 @@ public final class LicenseDtos {
             @NotNull(message = "La fecha de inicio es obligatoria") LocalDate startDate,
             @NotNull(message = "La fecha de fin es obligatoria") LocalDate endDate) {
 
-        /** Cross-field rule checked by Bean Validation together with the annotations above. */
         @AssertTrue(message = "La fecha de fin no puede ser anterior a la de inicio")
         public boolean isEndDateValid() {
             return startDate == null || endDate == null || !endDate.isBefore(startDate);

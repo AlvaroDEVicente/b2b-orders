@@ -18,7 +18,6 @@ public class BrandService {
         this.brands = brands;
     }
 
-    /** Royalty rates are commercial terms between the company and each brand: only ADMIN sees them. */
     @Transactional(readOnly = true)
     public List<BrandResponse> findAll(CurrentUser current) {
         return brands.findAllByOrderByNameAsc().stream()
@@ -44,7 +43,6 @@ public class BrandService {
             throw new ConflictException("Ya existe una marca llamada " + name);
         }
         boolean active = request.active() == null ? brand.isActive() : request.active();
-        // No save() call needed: the entity is managed, Hibernate writes the changes at commit ("dirty checking").
         brand.update(name, request.royaltyRate(), active);
         return BrandResponse.from(brand);
     }
