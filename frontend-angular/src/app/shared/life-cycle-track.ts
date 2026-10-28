@@ -84,6 +84,12 @@ import { LIFE_CYCLE, STATUS_LABELS } from './labels';
     .name {
       font-weight: 600;
       font-size: 0.875rem;
+      padding-right: 0.5rem;
+    }
+    @media (max-width: 480px) {
+      .name {
+        font-size: 0.75rem;
+      }
     }
     .cancelled {
       margin: 0;
