@@ -23,8 +23,9 @@ server:
 
 app:
   jwt:
-    # Must be at least 32 characters (HS256). Always override it with JWT_SECRET outside local development.
-    secret: ${JWT_SECRET:local-dev-secret-change-me-0123456789abcdef}
+    # No default on purpose: if JWT_SECRET is missing the app refuses to start, instead of running with a
+    # secret that is public on GitHub (anyone could then forge an ADMIN token). At least 32 bytes (HS256).
+    secret: ${JWT_SECRET:}
     ttl: ${JWT_TTL:PT8H}
     issuer: b2b-orders-api
   cors:

@@ -1,0 +1,5 @@
+# "local" profile: only on the test classpath (tests and ./mvnw spring-boot:test-run).
+# A fixed secret is fine here because these tokens never leave your machine.
+app:
+  jwt:
+    secret: local-test-secret-not-for-deployment-0123456789

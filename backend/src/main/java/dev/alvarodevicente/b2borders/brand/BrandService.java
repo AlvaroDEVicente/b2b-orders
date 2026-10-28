@@ -1,5 +1,6 @@
 package dev.alvarodevicente.b2borders.brand;
 
+import dev.alvarodevicente.b2borders.auth.CurrentUser;
 import dev.alvarodevicente.b2borders.brand.BrandDtos.BrandRequest;
 import dev.alvarodevicente.b2borders.brand.BrandDtos.BrandResponse;
 import dev.alvarodevicente.b2borders.common.ConflictException;
@@ -17,9 +18,13 @@ public class BrandService {
         this.brands = brands;
     }
 
+    /** Royalty rates are commercial terms between the company and each brand: only ADMIN sees them. */
     @Transactional(readOnly = true)
-    public List<BrandResponse> findAll() {
-        return brands.findAllByOrderByNameAsc().stream().map(BrandResponse::from).toList();
+    public List<BrandResponse> findAll(CurrentUser current) {
+        return brands.findAllByOrderByNameAsc().stream()
+                .map(BrandResponse::from)
+                .map(brand -> current.isAdmin() ? brand : brand.withoutRoyaltyRate())
+                .toList();
     }
 
     @Transactional

@@ -27,5 +27,9 @@ public final class BrandDtos {
         public static BrandResponse from(Brand brand) {
             return new BrandResponse(brand.getId(), brand.getName(), brand.getRoyaltyRate(), brand.isActive());
         }
+
+        public BrandResponse withoutRoyaltyRate() {
+            return new BrandResponse(id, name, null, active);
+        }
     }
 }

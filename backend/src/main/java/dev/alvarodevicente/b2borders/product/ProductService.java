@@ -55,9 +55,15 @@ public class ProductService {
         return PageResponse.of(products.findAll(Specification.allOf(filters), pageable), ProductResponse::from);
     }
 
+    /** Same rule as the catalog: a CUSTOMER only sees active products of brands licensed to them. */
     @Transactional(readOnly = true)
-    public ProductResponse findById(Long id) {
-        return ProductResponse.from(getEntity(id));
+    public ProductResponse findById(Long id, CurrentUser current) {
+        Product product = getEntity(id);
+        if (current.role() == Role.CUSTOMER && (!product.isActive()
+                || !licenseService.validBrandIdsToday(current.customerId()).contains(product.getBrand().getId()))) {
+            throw new NotFoundException("Producto", id);
+        }
+        return ProductResponse.from(product);
     }
 
     @Transactional

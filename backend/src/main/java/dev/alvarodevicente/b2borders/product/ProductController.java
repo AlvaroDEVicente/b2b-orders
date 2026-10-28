@@ -46,8 +46,8 @@ public class ProductController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Detalle de un producto")
-    public ProductResponse findById(@PathVariable Long id) {
-        return productService.findById(id);
+    public ProductResponse findById(@PathVariable Long id, CurrentUser current) {
+        return productService.findById(id, current);
     }
 
     @PostMapping

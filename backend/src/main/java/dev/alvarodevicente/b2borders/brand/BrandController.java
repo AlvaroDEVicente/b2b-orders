@@ -1,5 +1,6 @@
 package dev.alvarodevicente.b2borders.brand;
 
+import dev.alvarodevicente.b2borders.auth.CurrentUser;
 import dev.alvarodevicente.b2borders.brand.BrandDtos.BrandRequest;
 import dev.alvarodevicente.b2borders.brand.BrandDtos.BrandResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,9 +30,9 @@ public class BrandController {
     }
 
     @GetMapping
-    @Operation(summary = "Lista todas las marcas")
-    public List<BrandResponse> findAll() {
-        return brandService.findAll();
+    @Operation(summary = "Lista todas las marcas (el porcentaje de royalty solo lo ve ADMIN)")
+    public List<BrandResponse> findAll(CurrentUser current) {
+        return brandService.findAll(current);
     }
 
     @PostMapping

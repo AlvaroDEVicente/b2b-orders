@@ -2,7 +2,12 @@ package dev.alvarodevicente.b2borders.common;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.core.PropertyReferenceException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,6 +30,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(NotFoundException.class)
     ProblemDetail handleNotFound(NotFoundException ex) {
@@ -56,6 +63,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
         return problem(HttpStatus.UNAUTHORIZED, "Credenciales no válidas", ex.getMessage());
+    }
+
+    /** ?sort=foo with a field that does not exist: the client's mistake, not a server error. */
+    @ExceptionHandler(PropertyReferenceException.class)
+    ProblemDetail handleBadSort(PropertyReferenceException ex) {
+        return problem(HttpStatus.BAD_REQUEST, "Parámetro no válido",
+                "No se puede ordenar por '" + ex.getPropertyName() + "'.");
+    }
+
+    /**
+     * Anything unexpected: logged in full on the server, but the client only gets a generic message.
+     * Stack traces and SQL errors can reveal internals and must never reach the response.
+     * Security exceptions are re-thrown so Spring Security still answers 401/403.
+     */
+    @ExceptionHandler(Exception.class)
+    ProblemDetail handleUnexpected(Exception ex) throws Exception {
+        if (ex instanceof AccessDeniedException || ex instanceof AuthenticationException) {
+            throw ex;
+        }
+        log.error("Unexpected error", ex);
+        return problem(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno",
+                "Ha ocurrido un error inesperado. Inténtalo de nuevo más tarde.");
     }
 
     /** Bean Validation errors (@Valid on a request body): 400 with one message per field. */

@@ -40,6 +40,33 @@ class CatalogIntegrationTest extends IntegrationTest {
     }
 
     @Test
+    void customersCannotOpenProductsOutsideTheirLicenses() throws Exception {
+        // Product 7 is Pixel Pals, whose license for this customer expired in 2025.
+        mockMvc.perform(get("/api/products/7")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(tokenFor(CUSTOMER_CANTABRICO))))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/products/7").header(HttpHeaders.AUTHORIZATION, bearer(tokenFor(SALES_MARCOS))))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void onlyAdminsSeeRoyaltyRates() throws Exception {
+        mockMvc.perform(get("/api/brands").header(HttpHeaders.AUTHORIZATION, bearer(tokenFor(CUSTOMER_CANTABRICO))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].royaltyRate").doesNotExist());
+        mockMvc.perform(get("/api/brands").header(HttpHeaders.AUTHORIZATION, bearer(tokenFor(ADMIN))))
+                .andExpect(jsonPath("$[0].royaltyRate").exists());
+    }
+
+    @Test
+    void sortingByAnUnknownFieldIsABadRequest() throws Exception {
+        mockMvc.perform(get("/api/products").param("sort", "foo")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(tokenFor(ADMIN))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("No se puede ordenar por 'foo'."));
+    }
+
+    @Test
     void duplicatedSkuIsAConflict() throws Exception {
         mockMvc.perform(post("/api/products")
                         .header(HttpHeaders.AUTHORIZATION, bearer(tokenFor(ADMIN)))
