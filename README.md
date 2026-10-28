@@ -1,25 +1,39 @@
 # B2B Orders
 
-Gestión de pedidos B2B para una distribuidora de accesorios con licencia de marca. Los distribuidores piden productos de las marcas que tienen licenciadas, los comerciales siguen los pedidos de sus clientes y administración calcula los royalties que se deben a cada marca.
-
-Una sola API y dos fronts para dos públicos: un back-office en Angular para administración y comerciales, y un portal en React para que los distribuidores hagan sus pedidos.
-
-La idea sale de mi experiencia en ventas B2B y gestión de licencias de marca: la regla central, que un distribuidor solo pueda pedir productos de marcas con licencia en vigor, es una regla real de ese negocio.
-
 [![CI](https://github.com/AlvaroDEVicente/b2b-orders/actions/workflows/ci.yml/badge.svg)](https://github.com/AlvaroDEVicente/b2b-orders/actions/workflows/ci.yml)
+
+Antes de dedicarme al desarrollo trabajé en ventas B2B y gestión de licencias de marca para una empresa de accesorios de móvil. Este proyecto es una versión de aquel día a día: una distribuidora que vende productos con licencia (carcasas, fundas, cargadores) a tiendas y distribuidores.
+
+La regla que manda en ese negocio es sencilla: un distribuidor solo puede vender una marca si tiene la licencia en vigor. A partir de ahí salen el resto de cosas: el catálogo que ve cada cliente, qué pedidos se pueden confirmar y cuánto se le paga a cada marca en royalties.
+
+Hay una API y dos aplicaciones encima:
+
+- un back-office en Angular para administración y comerciales;
+- un portal en React para que los distribuidores hagan sus pedidos sin llamar a su comercial.
+
+Las marcas y empresas de la demo son inventadas. Lo he desarrollado con ayuda de un asistente de IA.
+
+## Capturas
+
+Back-office (Angular): detalle de un pedido, alta de un pedido por un comercial e informe de royalties.
+
+<img src="docs/capturas/angular-pedido.png" width="49%"> <img src="docs/capturas/angular-nuevo-pedido.png" width="49%">
+<img src="docs/capturas/angular-royalties.png" width="49%">
+
+Portal de distribuidores (React): catálogo, carrito y un pedido desde el móvil.
+
+<img src="docs/capturas/react-catalogo.png" width="49%"> <img src="docs/capturas/react-carrito.png" width="49%">
+<img src="docs/capturas/react-pedido-movil.png" width="24%">
 
 ## Tecnologías
 
-| Parte | Tecnologías |
-| --- | --- |
-| API | Java 21, Spring Boot 4.1, Spring Data JPA (Hibernate), Spring Security con JWT, Flyway, OpenAPI/Swagger |
-| Base de datos | PostgreSQL 17 |
-| Back-office | Angular 22 (componentes standalone, signals, formularios reactivos, RxJS), TypeScript |
-| Portal de distribuidores | React 19, TypeScript, React Router, TanStack Query, Vite |
-| Tests | JUnit 5, Mockito, Testcontainers (backend); Vitest (Angular); Vitest y Testing Library (React) |
-| Entrega | Docker, Docker Compose, GitHub Actions |
+- API: Java 21, Spring Boot 4.1, Spring Data JPA, Spring Security con JWT, Flyway y PostgreSQL 17. Documentada con Swagger.
+- Back-office: Angular 22 con componentes standalone, signals, formularios reactivos y RxJS.
+- Portal: React 19 con TypeScript, React Router y TanStack Query, sobre Vite.
+- Tests: JUnit 5, Mockito y Testcontainers en el backend; Vitest en Angular; Vitest y Testing Library en React.
+- Docker Compose para levantarlo todo y GitHub Actions para la integración continua.
 
-## Arrancarlo
+## Cómo arrancarlo
 
 Solo hace falta Docker:
 
@@ -27,84 +41,67 @@ Solo hace falta Docker:
 docker compose up --build
 ```
 
-- Back-office (Angular): http://localhost:4200
-- Portal de distribuidores (React): http://localhost:5173
-- Documentación de la API: http://localhost:8080/swagger-ui.html
+- Back-office: http://localhost:4200
+- Portal de distribuidores: http://localhost:5173
+- Swagger: http://localhost:8080/swagger-ui.html
 
-Usuarios de demostración, todos con la contraseña `demo1234`:
+Usuarios de prueba, todos con la contraseña `demo1234`:
 
-| Email | Rol |
+| Usuario | Qué puede hacer |
 | --- | --- |
-| `admin@example.com` | Administración: catálogo, clientes, licencias y royalties |
+| `admin@example.com` | Todo: catálogo, clientes, licencias y royalties |
 | `marcos.comercial@example.com` | Comercial con dos clientes asignados |
-| `cliente.cantabrico@example.com` | Cliente: Móviles del Cantábrico S.L. (entra por los dos fronts) |
-| `cliente.vera@example.com` | Cliente: TecnoVera Distribución S.L. (entra por los dos fronts) |
+| `cliente.cantabrico@example.com` | Cliente de Móviles del Cantábrico |
+| `cliente.vera@example.com` | Cliente de TecnoVera |
 
-El portal de React solo admite usuarios cliente; el personal interno usa el back-office.
+El portal de React solo deja entrar a clientes.
 
-Las marcas y empresas de la demo son inventadas.
-
-### Desarrollo sin Docker Compose
+Para programar con recarga en caliente lo arranco por partes:
 
 ```bash
-# API (necesita Docker solo para la base de datos de Testcontainers)
-cd backend
-./mvnw spring-boot:test-run      # arranca la API con un PostgreSQL temporal y datos de demo
-
-# Angular, en otra terminal
-cd frontend-angular
-npm install
-npm start                        # http://localhost:4200, con proxy de /api a localhost:8080
-
-# React, en otra terminal
-cd frontend-react
-npm install
-npm run dev                      # http://localhost:5173, con proxy de /api a localhost:8080
+cd backend && ./mvnw spring-boot:test-run   # API + PostgreSQL temporal con datos de prueba (necesita Docker)
+cd frontend-angular && npm install && npm start
+cd frontend-react && npm install && npm run dev
 ```
 
-`spring-boot:test-run` usa `TestB2bOrdersApiApplication`, que levanta PostgreSQL en un contenedor. Para usar un PostgreSQL propio, arranca con `SPRING_PROFILES_ACTIVE=demo ./mvnw spring-boot:run` y las variables `DB_URL`, `DB_USER`, `DB_PASSWORD` y `JWT_SECRET` (al menos 32 caracteres; sin ella la API no arranca).
+Si arrancas la API con `spring-boot:run` contra tu propio PostgreSQL, necesitas las variables `DB_URL`, `DB_USER`, `DB_PASSWORD` y `JWT_SECRET` (al menos 32 caracteres). Sin el secreto la API no arranca, a propósito.
 
-## Qué hace
+## Cómo funciona
 
-- Ciclo de vida del pedido: borrador, confirmado, enviado y entregado, o cancelado desde borrador o confirmado.
-- Al confirmar se comprueba otra vez la licencia y se descuenta el stock de todas las líneas, o de ninguna si falta alguna.
-- Al cancelar un pedido confirmado se devuelve el stock.
-- Cada rol ve solo lo suyo: un comercial, sus clientes; un cliente, su empresa. Los registros de otros responden 404.
-- El catálogo de un cliente ya viene filtrado por sus licencias.
-- Informe de royalties por marca y periodo, calculado con una consulta agregada en la base de datos.
+Un pedido pasa por borrador, confirmado, enviado y entregado, y se puede cancelar mientras está en borrador o confirmado. Al confirmarlo se vuelve a comprobar la licencia y se descuenta el stock de todas las líneas, o de ninguna si falta alguna. Si se cancela un pedido confirmado, el stock vuelve al almacén.
 
-## Estructura
+Cada usuario ve solo lo suyo: un comercial, sus clientes; un cliente, su empresa. Si alguien pide un registro que no es suyo, la API responde 404, como si no existiera.
 
-```
-backend/            API Spring Boot, organizada por funcionalidad (order/, product/, customer/...)
-  src/main/resources/db/migration   esquema (Flyway)
-  src/main/resources/db/demo        datos de demostración (perfil "demo")
-frontend-angular/   Angular: core/ (API, auth), features/ (pantallas), shared/ (componentes)
-frontend-react/     React: api/ (cliente HTTP), auth/ y cart/ (contextos), pages/, components/
-docs/               guía de despliegue
-docker-compose.yml  base de datos + API + los dos fronts
-```
+Algunas decisiones que tomé:
+
+- El esquema de la base de datos lo llevan las migraciones de Flyway. Hibernate solo comprueba que coincide.
+- Las reglas del pedido están en la propia entidad `Order` y no repartidas por los servicios, así no hay forma de saltarse un estado.
+- Al confirmar, las filas de los productos se bloquean con `SELECT ... FOR UPDATE`. Empecé con bloqueo optimista, pero un test con seis confirmaciones a la vez demostró que fallaban cinco aunque había stock de sobra. Con el bloqueo pesimista esperan su turno y salen todas.
+- Los tests de integración usan un PostgreSQL real con Testcontainers en lugar de H2, y no hacen rollback entre tests. Así salió un error que con rollback habría quedado oculto: al editar las líneas de un pedido, Hibernate inserta antes de borrar y chocaba con una restricción `UNIQUE`.
+- La API devuelve con cada pedido las acciones que el usuario puede hacer, y los fronts solo pintan esos botones. Las reglas están en un solo sitio.
+
+## Lo que mejoraría
+
+- El informe de royalties usa el porcentaje actual de cada marca. Si se cambia, cambian los informes pasados. Habría que guardar el porcentaje en cada línea al confirmar.
+- Si administración edita un producto, el stock que envía pisa el de la base de datos, y un pedido confirmado justo en ese momento se pierde.
+- Un token sigue siendo válido hasta que caduca (8 horas), aunque se desactive al usuario.
+- No hay límite de intentos de inicio de sesión.
 
 ## Tests
 
 ```bash
-cd backend && ./mvnw verify                  # 60 tests: unitarios y de integración contra PostgreSQL real
-cd frontend-angular && npm run test:ci       # tests de Angular con Vitest
-cd frontend-react && npm test                # tests de React con Vitest y Testing Library
+cd backend && ./mvnw verify          # 60 tests, contra PostgreSQL real
+cd frontend-angular && npm run test:ci   # 24 tests
+cd frontend-react && npm test        # 17 tests
 ```
 
-GitHub Actions ejecuta las tres baterías y construye las imágenes Docker en cada push o pull request a `main`.
+GitHub Actions pasa las tres baterías y construye las imágenes Docker en cada push a `main`.
 
-## Despliegue
+## Estructura
 
-Guía paso a paso para Railway en [docs/despliegue-railway.md](docs/despliegue-railway.md).
-
-## Decisiones técnicas
-
-- **Flyway** controla el esquema; Hibernate solo lo valida (`ddl-auto=validate`).
-- **Modelo de dominio rico**: las reglas de estado y stock viven en las entidades `Order` y `Product`, no repartidas por los servicios.
-- **JWT sin estado** con el resource server de Spring Security, roles con `@PreAuthorize` y autorización por dato en los servicios.
-- **Errores RFC 9457** (`ProblemDetail`): todos los errores de la API tienen la misma forma.
-- **Bloqueo pesimista al confirmar** (`SELECT ... FOR UPDATE`): pedidos simultáneos del mismo producto esperan su turno en lugar de fallar, y el stock nunca se descuadra. Hay un test que lo comprueba con varios hilos a la vez. `@Version` sigue protegiendo las demás modificaciones.
-- **Testcontainers** en lugar de H2: los tests usan el mismo motor de base de datos que producción.
-- **La API decide qué acciones se pueden hacer** sobre cada pedido (`availableActions`) y el front solo pinta esos botones.
+```
+backend/            API, organizada por funcionalidad (order/, product/, customer/...)
+frontend-angular/   back-office
+frontend-react/     portal de distribuidores
+docs/               capturas y guía de despliegue en Railway
+```
