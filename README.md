@@ -11,7 +11,7 @@ Hay una API y dos aplicaciones encima:
 - un back-office en Angular para administración y comerciales;
 - un portal en React para que los distribuidores hagan sus pedidos sin llamar a su comercial.
 
-Las marcas y empresas de la demo son inventadas. Lo he desarrollado con ayuda de un asistente de IA.
+Las marcas y empresas de la demo son inventadas.
 
 ## Capturas
 
