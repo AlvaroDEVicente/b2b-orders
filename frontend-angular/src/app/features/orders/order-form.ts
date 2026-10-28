@@ -13,7 +13,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { forkJoin, map, of } from 'rxjs';
+import { Subscription, forkJoin, map, of } from 'rxjs';
 import { CustomerApi, OrderApi, ProductApi } from '../../core/api/api.services';
 import { Customer, OrderLineRequest, Product } from '../../core/api/models';
 import { errorMessage } from '../../core/api/problem';
@@ -80,8 +80,14 @@ export function orderTotal(
         </div>
       }
 
+      @if (notice(); as message) {
+        <p class="notice" role="status">{{ message }}</p>
+      }
+
       @if (needsCustomer()) {
         <p class="muted">Elige un cliente para ver los productos que tiene licenciados.</p>
+      } @else if (loadingLicenses()) {
+        <p class="muted">Cargando los productos que puede pedir este cliente…</p>
       } @else {
         <div class="table-wrap">
           <table>
@@ -193,6 +199,13 @@ export function orderTotal(
     .hint {
       font-size: 0.875rem;
     }
+    .notice {
+      padding: 0.625rem 0.875rem;
+      border-radius: var(--radius-control);
+      background: var(--draft-bg);
+      color: var(--draft-ink);
+      margin: 0 0 1rem;
+    }
     .visually-hidden {
       position: absolute;
       width: 1px;
@@ -230,12 +243,27 @@ export class OrderForm implements OnInit {
   protected readonly submitted = signal(false);
   private readonly selectedCustomer = signal<number | null>(null);
 
-  /** Products the chosen customer may order. Customers already get a filtered catalog from the API. */
+  protected readonly notice = signal<string | null>(null);
+  private licenseRequest: Subscription | null = null;
+  private pendingPreset: number | null = null;
+
+  /**
+   * Products the chosen customer may order. A CUSTOMER already gets a filtered catalog from the API.
+   * For staff nothing is offered until the chosen customer's licenses have arrived.
+   */
   protected readonly products = computed(() => {
-    const brands = this.licensedBrandIds();
     const products = this.allProducts();
-    return brands === null ? products : products.filter((p) => brands.has(p.brandId));
+    if (!this.auth.isStaff()) {
+      return products;
+    }
+    const brands = this.licensedBrandIds();
+    return brands === null ? [] : products.filter((p) => brands.has(p.brandId));
   });
+
+  protected readonly loadingLicenses = computed(
+    () =>
+      this.auth.isStaff() && this.selectedCustomer() !== null && this.licensedBrandIds() === null,
+  );
 
   protected readonly needsCustomer = computed(
     () => this.auth.isStaff() && !this.id() && this.selectedCustomer() === null,
@@ -256,7 +284,16 @@ export class OrderForm implements OnInit {
     if (this.auth.isStaff()) {
       this.form.controls.customerId.addValidators(Validators.required);
     }
-    const products$ = this.productApi.search({ size: 200 }).pipe(map((page) => page.content));
+    const products$ = this.productApi.search({ size: 200 }).pipe(
+      map((page) => {
+        if (page.totalElements > page.content.length) {
+          this.notice.set(
+            `Solo se muestran los primeros ${page.content.length} productos del catálogo.`,
+          );
+        }
+        return page.content;
+      }),
+    );
     const customers$ = this.auth.isStaff() && !this.id() ? this.customerApi.findAll() : of([]);
 
     forkJoin([products$, customers$]).subscribe({
@@ -267,7 +304,13 @@ export class OrderForm implements OnInit {
           this.loadOrder(Number(this.id()));
         } else {
           const preset = this.productId() ? Number(this.productId()) : null;
-          this.addLine(preset);
+          if (this.auth.isStaff()) {
+            // Staff still have to choose the customer: apply the preset once their licenses are known.
+            this.pendingPreset = preset;
+            this.addLine();
+          } else {
+            this.addLine(preset !== null && products.some((p) => p.id === preset) ? preset : null);
+          }
         }
       },
       error: (error: unknown) => this.error.set(errorMessage(error)),
@@ -277,6 +320,7 @@ export class OrderForm implements OnInit {
   protected onCustomerChange(): void {
     const customerId = this.form.controls.customerId.value;
     this.selectedCustomer.set(customerId);
+    this.licensedBrandIds.set(null);
     if (customerId !== null) {
       this.loadLicenses(customerId);
     }
@@ -353,13 +397,42 @@ export class OrderForm implements OnInit {
     });
   }
 
+  /**
+   * Loads the licenses of the chosen customer. A previous request still in flight is cancelled
+   * (the same idea as switchMap), so a slow answer for the old customer can never win.
+   */
   private loadLicenses(customerId: number): void {
-    this.customerApi.licenses(customerId).subscribe({
-      next: (licenses) =>
-        this.licensedBrandIds.set(
-          new Set(licenses.filter((l) => l.validToday).map((l) => l.brandId)),
-        ),
+    this.licenseRequest?.unsubscribe();
+    this.licenseRequest = this.customerApi.licenses(customerId).subscribe({
+      next: (licenses) => {
+        const brands = new Set(licenses.filter((l) => l.validToday).map((l) => l.brandId));
+        this.licensedBrandIds.set(brands);
+        this.keepOnlyLicensedProducts();
+      },
       error: (error: unknown) => this.error.set(errorMessage(error)),
     });
+  }
+
+  /** After a customer change, empty the lines whose product that customer cannot order. */
+  private keepOnlyLicensedProducts(): void {
+    const allowed = new Set(this.products().map((p) => p.id));
+    let removed = 0;
+    for (const line of this.lines.controls) {
+      const id = line.controls.productId.value;
+      if (id !== null && !allowed.has(id)) {
+        line.controls.productId.setValue(null);
+        removed++;
+      }
+    }
+    if (this.pendingPreset !== null && allowed.has(this.pendingPreset)) {
+      const empty = this.lines.controls.find((line) => line.controls.productId.value === null);
+      empty?.controls.productId.setValue(this.pendingPreset);
+      this.pendingPreset = null;
+    }
+    this.notice.set(
+      removed > 0
+        ? 'Se han vaciado las líneas con productos de marcas que este cliente no tiene licenciadas.'
+        : null,
+    );
   }
 }
