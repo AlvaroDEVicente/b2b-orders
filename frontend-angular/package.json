@@ -1,12 +1,13 @@
 {
-  "name": "frontend-angular",
+  "name": "b2b-orders-angular",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:ci": "ng test --watch=false"
   },
   "private": true,
   "packageManager": "npm@10.9.9",

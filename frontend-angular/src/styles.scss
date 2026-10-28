@@ -1,1 +1,265 @@
-/* You can add global styles to this file, and also import other style files */
+// Design tokens. Every colour in the app comes from here.
+// Palette: dark navy "ink" on cool paper, carbon-copy blue for actions,
+// and the yellow of a warehouse label reserved for drafts (things still to do).
+:root {
+  --ink: #1f2a44;
+  --paper: #f4f6f9;
+  --surface: #ffffff;
+  --line: #d5dae3;
+  --muted: #5e6a80;
+  --accent: #2b59c3;
+  --accent-strong: #1f4499;
+  --accent-bg: #e6edfa;
+  --draft-ink: #6b4f00;
+  --draft-bg: #fff2c2;
+  --ok: #23744a;
+  --ok-bg: #e3f2e9;
+  --danger: #b3362f;
+  --danger-bg: #fbe9e7;
+
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --space: 1rem;
+
+  color-scheme: light;
+  font-family: 'Public Sans', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 650;
+}
+
+a {
+  color: var(--accent);
+}
+
+// Money and quantities: tabular figures so columns of numbers line up.
+.num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+// Page header: title on the left, main action on the right.
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space);
+  margin-bottom: 1.25rem;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: 1.25rem;
+}
+
+// Tables carry most of the data in this app: dense, left aligned, numbers right aligned.
+.table-wrap {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+}
+
+table {
+  width: 100%;
+  // On narrow screens the table scrolls sideways inside .table-wrap instead of squeezing every word.
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+th,
+td {
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--paper);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tfoot td {
+  font-weight: 700;
+  border-top: 2px solid var(--ink);
+  border-bottom: none;
+}
+
+tr.clickable {
+  cursor: pointer;
+
+  &:hover td {
+    background: var(--accent-bg);
+  }
+}
+
+// Controls
+label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+input,
+select {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+
+  &.ng-invalid.ng-touched {
+    border-color: var(--danger);
+  }
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field-error {
+  color: var(--danger);
+  font-size: 0.8125rem;
+  margin: 0.25rem 0 0;
+}
+
+button,
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover:not(:disabled) {
+    background: var(--accent-strong);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.secondary {
+    background: var(--surface);
+    color: var(--accent);
+
+    &:hover:not(:disabled) {
+      background: var(--accent-bg);
+    }
+  }
+
+  &.danger {
+    background: var(--surface);
+    border-color: var(--danger);
+    color: var(--danger);
+
+    &:hover:not(:disabled) {
+      background: var(--danger-bg);
+    }
+  }
+
+  &.link {
+    border-color: transparent;
+    background: transparent;
+    color: var(--accent);
+    padding-inline: 0.25rem;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-control);
+  margin-bottom: 1rem;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid currentColor;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
