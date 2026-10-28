@@ -62,7 +62,7 @@ npm install
 npm run dev                      # http://localhost:5173, con proxy de /api a localhost:8080
 ```
 
-`spring-boot:test-run` usa `TestB2bOrdersApiApplication`, que levanta PostgreSQL en un contenedor. Para usar un PostgreSQL propio, arranca con `SPRING_PROFILES_ACTIVE=demo ./mvnw spring-boot:run` y las variables `DB_URL`, `DB_USER` y `DB_PASSWORD`.
+`spring-boot:test-run` usa `TestB2bOrdersApiApplication`, que levanta PostgreSQL en un contenedor. Para usar un PostgreSQL propio, arranca con `SPRING_PROFILES_ACTIVE=demo ./mvnw spring-boot:run` y las variables `DB_URL`, `DB_USER`, `DB_PASSWORD` y `JWT_SECRET` (al menos 32 caracteres; sin ella la API no arranca).
 
 ## Qué hace
 
@@ -88,12 +88,12 @@ docker-compose.yml  base de datos + API + los dos fronts
 ## Tests
 
 ```bash
-cd backend && ./mvnw verify                  # 53 tests: unitarios y de integración contra PostgreSQL real
+cd backend && ./mvnw verify                  # 60 tests: unitarios y de integración contra PostgreSQL real
 cd frontend-angular && npm run test:ci       # tests de Angular con Vitest
 cd frontend-react && npm test                # tests de React con Vitest y Testing Library
 ```
 
-GitHub Actions ejecuta las tres baterías y construye las imágenes Docker en cada push.
+GitHub Actions ejecuta las tres baterías y construye las imágenes Docker en cada push o pull request a `main`.
 
 ## Despliegue
 
@@ -105,6 +105,6 @@ Guía paso a paso para Railway en [docs/despliegue-railway.md](docs/despliegue-r
 - **Modelo de dominio rico**: las reglas de estado y stock viven en las entidades `Order` y `Product`, no repartidas por los servicios.
 - **JWT sin estado** con el resource server de Spring Security, roles con `@PreAuthorize` y autorización por dato en los servicios.
 - **Errores RFC 9457** (`ProblemDetail`): todos los errores de la API tienen la misma forma.
-- **Bloqueo optimista** (`@Version`) para que dos pedidos simultáneos no descuenten mal el stock.
+- **Bloqueo pesimista al confirmar** (`SELECT ... FOR UPDATE`): pedidos simultáneos del mismo producto esperan su turno en lugar de fallar, y el stock nunca se descuadra. Hay un test que lo comprueba con varios hilos a la vez. `@Version` sigue protegiendo las demás modificaciones.
 - **Testcontainers** en lugar de H2: los tests usan el mismo motor de base de datos que producción.
 - **La API decide qué acciones se pueden hacer** sobre cada pedido (`availableActions`) y el front solo pinta esos botones.

@@ -1,5 +1,6 @@
 # Runs on every push and pull request to main.
-# Three independent jobs, so a failure says exactly which part broke.
+# Three test jobs run in parallel, so a failure says exactly which part broke;
+# the Docker build runs only when all three pass.
 name: CI
 
 on:

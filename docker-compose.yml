@@ -3,7 +3,7 @@
 #   React distributors' portal:  http://localhost:5173
 #   API + Swagger:               http://localhost:8080/swagger-ui.html
 # Demo users (password demo1234): admin@example.com, marcos.comercial@example.com,
-# cliente.cantabrico@example.com
+# irene.comercial@example.com, cliente.cantabrico@example.com, cliente.vera@example.com
 
 services:
   db:
