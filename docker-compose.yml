@@ -1,6 +1,7 @@
 # Everything in one command:  docker compose up --build
-#   Angular front:  http://localhost:4200
-#   API + Swagger:  http://localhost:8080/swagger-ui.html
+#   Angular back office:        http://localhost:4200
+#   React distributors' portal:  http://localhost:5173
+#   API + Swagger:               http://localhost:8080/swagger-ui.html
 # Demo users (password demo1234): admin@example.com, marcos.comercial@example.com,
 # cliente.cantabrico@example.com
 
@@ -49,6 +50,16 @@ services:
       API_URL: http://api:8080
     ports:
       - "4200:80"
+
+  web-react:
+    build: ./frontend-react
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_URL: http://api:8080
+    ports:
+      - "5173:80"
 
 volumes:
   db-data:

@@ -1,0 +1,27 @@
+server {
+    listen ${PORT};
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # The browser calls /api/... on the same origin; nginx forwards it to the Spring Boot API.
+    # Same origin means no CORS needed in production.
+    location /api/ {
+        proxy_pass ${API_URL};
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Hashed bundles never change: cache them for a year.
+    location ~* \.(?:js|css|woff2?|ico|png|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # Single page app: any other path (/orders/7, /catalog...) returns index.html and Angular's router takes over.
+    location / {
+        add_header Cache-Control "no-cache";
+        try_files $uri $uri/ /index.html;
+    }
+}

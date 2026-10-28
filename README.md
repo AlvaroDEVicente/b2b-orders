@@ -2,6 +2,8 @@
 
 Gestión de pedidos B2B para una distribuidora de accesorios con licencia de marca. Los distribuidores piden productos de las marcas que tienen licenciadas, los comerciales siguen los pedidos de sus clientes y administración calcula los royalties que se deben a cada marca.
 
+Una sola API y dos fronts para dos públicos: un back-office en Angular para administración y comerciales, y un portal en React para que los distribuidores hagan sus pedidos.
+
 La idea sale de mi experiencia en ventas B2B y gestión de licencias de marca: la regla central, que un distribuidor solo pueda pedir productos de marcas con licencia en vigor, es una regla real de ese negocio.
 
 [![CI](https://github.com/AlvaroDEVicente/b2b-orders/actions/workflows/ci.yml/badge.svg)](https://github.com/AlvaroDEVicente/b2b-orders/actions/workflows/ci.yml)
@@ -12,8 +14,9 @@ La idea sale de mi experiencia en ventas B2B y gestión de licencias de marca: l
 | --- | --- |
 | API | Java 21, Spring Boot 4.1, Spring Data JPA (Hibernate), Spring Security con JWT, Flyway, OpenAPI/Swagger |
 | Base de datos | PostgreSQL 17 |
-| Front | Angular 22 (componentes standalone, signals, formularios reactivos, RxJS), TypeScript |
-| Tests | JUnit 5, Mockito, Testcontainers (backend); Vitest (Angular) |
+| Back-office | Angular 22 (componentes standalone, signals, formularios reactivos, RxJS), TypeScript |
+| Portal de distribuidores | React 19, TypeScript, React Router, TanStack Query, Vite |
+| Tests | JUnit 5, Mockito, Testcontainers (backend); Vitest (Angular); Vitest y Testing Library (React) |
 | Entrega | Docker, Docker Compose, GitHub Actions |
 
 ## Arrancarlo
@@ -24,7 +27,8 @@ Solo hace falta Docker:
 docker compose up --build
 ```
 
-- Aplicación: http://localhost:4200
+- Back-office (Angular): http://localhost:4200
+- Portal de distribuidores (React): http://localhost:5173
 - Documentación de la API: http://localhost:8080/swagger-ui.html
 
 Usuarios de demostración, todos con la contraseña `demo1234`:
@@ -33,8 +37,10 @@ Usuarios de demostración, todos con la contraseña `demo1234`:
 | --- | --- |
 | `admin@example.com` | Administración: catálogo, clientes, licencias y royalties |
 | `marcos.comercial@example.com` | Comercial con dos clientes asignados |
-| `cliente.cantabrico@example.com` | Cliente: Móviles del Cantábrico S.L. |
-| `cliente.vera@example.com` | Cliente: TecnoVera Distribución S.L. |
+| `cliente.cantabrico@example.com` | Cliente: Móviles del Cantábrico S.L. (entra por los dos fronts) |
+| `cliente.vera@example.com` | Cliente: TecnoVera Distribución S.L. (entra por los dos fronts) |
+
+El portal de React solo admite usuarios cliente; el personal interno usa el back-office.
 
 Las marcas y empresas de la demo son inventadas.
 
@@ -49,6 +55,11 @@ cd backend
 cd frontend-angular
 npm install
 npm start                        # http://localhost:4200, con proxy de /api a localhost:8080
+
+# React, en otra terminal
+cd frontend-react
+npm install
+npm run dev                      # http://localhost:5173, con proxy de /api a localhost:8080
 ```
 
 `spring-boot:test-run` usa `TestB2bOrdersApiApplication`, que levanta PostgreSQL en un contenedor. Para usar un PostgreSQL propio, arranca con `SPRING_PROFILES_ACTIVE=demo ./mvnw spring-boot:run` y las variables `DB_URL`, `DB_USER` y `DB_PASSWORD`.
@@ -69,8 +80,9 @@ backend/            API Spring Boot, organizada por funcionalidad (order/, produ
   src/main/resources/db/migration   esquema (Flyway)
   src/main/resources/db/demo        datos de demostración (perfil "demo")
 frontend-angular/   Angular: core/ (API, auth), features/ (pantallas), shared/ (componentes)
+frontend-react/     React: api/ (cliente HTTP), auth/ y cart/ (contextos), pages/, components/
 docs/               guía de despliegue
-docker-compose.yml  base de datos + API + front
+docker-compose.yml  base de datos + API + los dos fronts
 ```
 
 ## Tests
@@ -78,9 +90,10 @@ docker-compose.yml  base de datos + API + front
 ```bash
 cd backend && ./mvnw verify                  # 53 tests: unitarios y de integración contra PostgreSQL real
 cd frontend-angular && npm run test:ci       # tests de Angular con Vitest
+cd frontend-react && npm test                # tests de React con Vitest y Testing Library
 ```
 
-GitHub Actions ejecuta las dos baterías y construye las imágenes Docker en cada push.
+GitHub Actions ejecuta las tres baterías y construye las imágenes Docker en cada push.
 
 ## Despliegue
 

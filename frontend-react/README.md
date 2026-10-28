@@ -1,32 +1,23 @@
-# React + TypeScript + Vite
+# Portal de distribuidores (React)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 con TypeScript, React Router, TanStack Query y Vite. Es el front que usan los distribuidores para consultar su catálogo, preparar un pedido y seguirlo; administración y comerciales usan el back-office en Angular.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev     # http://localhost:5173, /api se redirige a la API en localhost:8080
+npm test        # Vitest y Testing Library
+npm run lint    # oxlint
+npm run build   # comprobación de tipos y build de producción en dist/
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Estructura
+
+```
+src/api/         cliente HTTP (token, errores), endpoints y tipos
+src/auth/        sesión en un contexto de React
+src/cart/        carrito: reducer puro + contexto
+src/pages/       una página por ruta
+src/components/  piezas reutilizables (marco, estado, paginación)
+```
+
+Los datos del servidor los gestiona TanStack Query (caché, recarga, estados de carga y error). El estado que solo existe en el navegador, como la sesión y el carrito, vive en contextos de React.
