@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router'
 import { ApiError } from './api/client'
 import { App } from './App'
 import { AuthProvider } from './auth/AuthContext'
-import { CartProvider } from './cart/CartContext'
+import { UserCart } from './cart/CartContext'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -23,9 +23,9 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
-          <CartProvider>
+          <UserCart>
             <App />
-          </CartProvider>
+          </UserCart>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

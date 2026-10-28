@@ -5,7 +5,7 @@ import { useCart } from '../cart/CartContext'
 /** Frame of every page after login. Without a session it sends the user to /login. */
 export function Layout() {
   const { user, logout } = useAuth()
-  const { units, dispatch } = useCart()
+  const { units } = useCart()
 
   if (!user) {
     return <Navigate to="/login" replace />
@@ -30,15 +30,7 @@ export function Layout() {
           </nav>
           <div className="who">
             <span>{user.fullName}</span>
-            <button
-              type="button"
-              className="link on-dark"
-              onClick={() => {
-                // The next person on this browser must not inherit the cart.
-                dispatch({ type: 'clear' })
-                logout()
-              }}
-            >
+            <button type="button" className="link on-dark" onClick={logout}>
               Cerrar sesión
             </button>
           </div>
