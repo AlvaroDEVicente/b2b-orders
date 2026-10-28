@@ -101,16 +101,25 @@ public class OrderService {
 
     @Transactional
     public OrderResponse confirm(Long id, CurrentUser current) {
+        lockProductsOf(id);
         Order order = getAccessible(id, current);
-        // The license could have expired between creating the draft and confirming it.
-        checkLicenses(order.getCustomer(),
-                order.getLines().stream().map(OrderLine::getProduct).toList());
+        // Things may have changed since the draft was created: the customer was deactivated,
+        // a product withdrawn or a license expired.
+        if (!order.getCustomer().isActive()) {
+            throw new BusinessRuleException("El cliente " + order.getCustomer().getName() + " está dado de baja");
+        }
+        List<Product> orderedProducts = order.getLines().stream().map(OrderLine::getProduct).toList();
+        orderedProducts.stream().filter(product -> !product.isActive()).findFirst().ifPresent(product -> {
+            throw new BusinessRuleException("El producto " + product.getSku() + " ya no está a la venta");
+        });
+        checkLicenses(order.getCustomer(), orderedProducts);
         order.confirm(clock.instant());
         return toResponse(order, current);
     }
 
     @Transactional
     public OrderResponse cancel(Long id, CurrentUser current) {
+        lockProductsOf(id);
         Order order = getAccessible(id, current);
         if (!current.isStaff() && order.getStatus() != OrderStatus.DRAFT) {
             throw new AccessDeniedException("Un cliente solo puede cancelar pedidos en borrador");
@@ -153,6 +162,19 @@ public class OrderService {
             }
         }
         return actions;
+    }
+
+    /**
+     * Confirming and cancelling change stock. The products are locked (SELECT ... FOR UPDATE) BEFORE the
+     * order is loaded, so the stock read afterwards is the latest committed value and nobody else can
+     * change it until this transaction ends. Concurrent orders for the same product wait in line
+     * instead of failing with a version conflict.
+     */
+    private void lockProductsOf(Long orderId) {
+        List<Long> productIds = orders.findProductIds(orderId);
+        if (!productIds.isEmpty()) {
+            products.lockByIds(productIds);
+        }
     }
 
     private Order getAccessible(Long id, CurrentUser current) {
