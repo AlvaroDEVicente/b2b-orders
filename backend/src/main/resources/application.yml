@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: b2b-orders-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/b2b_orders}
+    username: ${DB_USER:b2b}
+    password: ${DB_PASSWORD:b2b}
+  jpa:
+    # Never let Hibernate change the schema: Flyway owns it, Hibernate only checks it matches.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: ${PORT:8080}
+  # Behind Railway's proxy the original scheme/host come in X-Forwarded-* headers.
+  forward-headers-strategy: framework
+
+app:
+  jwt:
+    # Must be at least 32 characters (HS256). Always override it with JWT_SECRET outside local development.
+    secret: ${JWT_SECRET:local-dev-secret-change-me-0123456789abcdef}
+    ttl: ${JWT_TTL:PT8H}
+    issuer: b2b-orders-api
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:5173}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
